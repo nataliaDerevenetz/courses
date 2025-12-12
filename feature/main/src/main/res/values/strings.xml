@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_load">Ошибка загрузки данных</string>
+    <string name="sort">По дате добавления</string>
+    <string name="detail">Подробнее</string>
+    <string name="search">Search couses...</string>
+</resources>
