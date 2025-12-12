@@ -2,7 +2,7 @@ package com.example.data.local
 
 import com.example.data.models.toCourse
 import com.example.data.models.toCourseEntity
-import com.example.database.CourseDao
+import com.example.database.dao.CourseDao
 import com.example.domain.models.Course
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

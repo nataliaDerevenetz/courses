@@ -1,6 +1,6 @@
 package com.example.data.models
 
-import com.example.database.CourseEntity
+import com.example.database.models.CourseEntity
 import com.example.domain.models.Course
 import com.example.network.models.CourseResponse
 import java.text.SimpleDateFormat
