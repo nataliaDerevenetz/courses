@@ -18,11 +18,11 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.itcourses.R
 import com.example.itcourses.presentation.navigation.AppNavGraph
-import com.example.main.navigation.MainBaseRoute
 import com.example.main.navigation.MainRoute
 
 @Composable
@@ -41,44 +41,49 @@ fun AppContent()
     }
 }
 
-
 @Composable
 fun BottomBar(navController: NavController, tabs: Array<BottomTabs>) {
-
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    if ( navBackStackEntry?.destination?.route == null) return
-    val currentRoute = navBackStackEntry?.destination?.parent?.route
-    val routes = remember { BottomTabs.entries.map { it.route.qualifiedName } }
+    val destination = navBackStackEntry?.destination
+
+    val currentTab = tabs.find { tab ->
+        destination?.hasRoute(tab.route::class) ?: false ||
+                destination?.parent?.hasRoute(tab.route::class) ?: false
+    }
+
+    if (currentTab == null) return
+
     val selectedIcon = colorResource(id = R.color.green)
 
-    if (currentRoute in routes) {
-        NavigationBar {
-            tabs.forEach { tab ->
-                NavigationBarItem(
-                    icon = { Icon(painterResource(tab.icon), contentDescription = null) },
-                    label = { Text(stringResource(tab.title)) },
-                    selected = currentRoute == tab.route.qualifiedName,
-                    onClick = {
-                        if (tab.route.qualifiedName != currentRoute) {
-                            navController.navigate(tab.route.qualifiedName!!) {
-                                popUpTo(MainRoute::class.qualifiedName!!) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
+    NavigationBar {
+        tabs.forEach { tab ->
+            val isSelected = destination?.hasRoute(tab.route::class) ?: false ||
+                    destination?.parent?.hasRoute(tab.route::class) ?: false
+
+            NavigationBarItem(
+                selected = isSelected,
+                onClick = {
+                    if (!isSelected) {
+                        navController.navigate(tab.route) {
+                            popUpTo(MainRoute) {
+                                saveState = true
                             }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                    },
-                    alwaysShowLabel = true,
-                    modifier = Modifier.navigationBarsPadding(),
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = selectedIcon,
-                        unselectedIconColor = Color.White,
-                        selectedTextColor = selectedIcon,
-                        unselectedTextColor = Color.White
-                    )
+                    }
+                },
+                icon = { Icon(painterResource(tab.icon), contentDescription = null) },
+                label = { Text(stringResource(tab.title)) },
+                alwaysShowLabel = true,
+                modifier = Modifier.navigationBarsPadding(),
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = selectedIcon,
+                    unselectedIconColor = Color.White,
+                    selectedTextColor = selectedIcon,
+                    unselectedTextColor = Color.White
                 )
-            }
+            )
         }
     }
 }

@@ -5,11 +5,12 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.example.utils.navigation.BottomRoute
 import kotlinx.serialization.Serializable
 
-@Serializable object ProfileRoute
+@Serializable object ProfileRoute : BottomRoute
 
-@Serializable data object ProfileBaseRoute
+@Serializable data object ProfileBaseRoute : BottomRoute
 
 fun NavController.navigateToProfile(navOptions: NavOptions? = null) =
     navigate(route = ProfileRoute, navOptions)

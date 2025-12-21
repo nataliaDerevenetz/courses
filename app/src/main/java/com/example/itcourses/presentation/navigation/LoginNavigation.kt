@@ -6,11 +6,13 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.itcourses.presentation.LoginScreen
+import com.example.utils.navigation.BottomRoute
 import kotlinx.serialization.Serializable
 
-@Serializable object LoginRoute
 
-@Serializable object LoginBaseRoute
+@Serializable object LoginRoute : BottomRoute
+
+@Serializable object LoginBaseRoute : BottomRoute
 
 fun NavController.navigateToLogin(navOptions: NavOptions? = null) =
     navigate(route = LoginRoute, navOptions)

@@ -7,21 +7,15 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.favorite.FavoriteScreen
+import com.example.utils.navigation.BottomRoute
 import kotlinx.serialization.Serializable
 
-@Serializable object FavoriteRoute
+@Serializable object FavoriteRoute: BottomRoute
 
-@Serializable data object FavoriteBaseRoute
+@Serializable data object FavoriteBaseRoute : BottomRoute
 
 
-fun NavController.navigateToFavorite(navOptions: NavOptions? = null) =
-    navigate(route = FavoriteRoute) {
-        launchSingleTop = true
-        popUpTo(graph.findStartDestination().id) {
-            saveState = true
-            inclusive = true
-        }
-    }
+fun NavController.navigateToFavorite(navOptions: NavOptions? = null) = navigate(route = FavoriteRoute, navOptions)
 
 
 fun NavGraphBuilder.favorite(

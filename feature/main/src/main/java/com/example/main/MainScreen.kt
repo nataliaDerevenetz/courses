@@ -155,7 +155,8 @@ internal fun MainScreen(viewModel: MainViewModel = hiltViewModel())
                                 }
                             }
                         }
-                        items(items = if (isSort) it.sortedByDescending { it1 -> it1.startDate } else it.sortedBy { it1 -> it1.startDate }) {
+                        items(items = if (isSort) it.sortedByDescending { it1 -> it1.startDate } else it.sortedBy { it1 -> it1.startDate },
+                            key = { course -> course.id } ) {
                             course ->
                             val isFavorite = favoritesUser.any { it.id == course.id }
                             val courseHasLike = if (isFavorite) course.copy(hasLike = true) else course.copy(hasLike = false)

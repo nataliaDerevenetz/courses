@@ -49,7 +49,7 @@ internal fun FavoriteScreen(viewModel: FavoriteViewModel = hiltViewModel())
             FavoriteScreenEmpty()
         } else {
             LazyColumn(Modifier.padding(innerPadding)) {
-                items(items = favoritesUser){
+                items(items = favoritesUser, key = { course -> course.id }){
                         course -> CardCourse({viewModel.handleEvent(FavoriteUiEvent.OnRemoveFavoriteCourse(course))},course)
                 }
             }
