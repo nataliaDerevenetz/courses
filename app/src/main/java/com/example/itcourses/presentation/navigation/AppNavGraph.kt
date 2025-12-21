@@ -22,7 +22,7 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = LoginBaseRoute::class
+        startDestination = LoginBaseRoute
     ) {
         login(onNavigateToMain = {navController.navigateToMain(navOptions {
             popUpTo(navController.graph.findStartDestination().id) {
