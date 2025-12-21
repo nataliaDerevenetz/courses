@@ -45,5 +45,4 @@ class FavoriteViewModel @Inject constructor(
     private suspend fun removeFavoriteCourse(course: Course) {
         removeCourseAsFavoriteUseCase(course)
     }
-
 }

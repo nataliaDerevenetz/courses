@@ -22,6 +22,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.itcourses.R
 import com.example.itcourses.presentation.navigation.AppNavGraph
+import com.example.main.navigation.MainBaseRoute
 import com.example.main.navigation.MainRoute
 
 @Composable
@@ -40,14 +41,16 @@ fun AppContent()
     }
 }
 
+
 @Composable
 fun BottomBar(navController: NavController, tabs: Array<BottomTabs>) {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     if ( navBackStackEntry?.destination?.route == null) return
-    val currentRoute = navBackStackEntry?.destination?.route ?: MainRoute::class.qualifiedName
+    val currentRoute = navBackStackEntry?.destination?.parent?.route
     val routes = remember { BottomTabs.entries.map { it.route.qualifiedName } }
     val selectedIcon = colorResource(id = R.color.green)
+
     if (currentRoute in routes) {
         NavigationBar {
             tabs.forEach { tab ->

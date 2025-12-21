@@ -14,9 +14,8 @@ import kotlinx.serialization.Serializable
 @Serializable data object MainBaseRoute
 
 fun NavController.navigateToMain(navOptions: NavOptions? = null) =
-    navigate(route = MainRoute){
+    navigate(route = MainBaseRoute){
         popUpTo(graph.findStartDestination().id) {
-            saveState = true
             inclusive = true
         }
     }
