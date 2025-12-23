@@ -25,9 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -36,11 +35,12 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.utils.R
@@ -49,7 +49,7 @@ import kotlinx.coroutines.Job
 @Composable
 fun GlassyBox(
     modifier: Modifier = Modifier,
-    left: Dp = 100.dp,
+    left: () -> Dp,
     top: Dp = 30.dp,
     width: Dp = 200.dp,
     height: Dp = 60.dp,
@@ -62,7 +62,7 @@ fun GlassyBox(
     val density = LocalDensity.current
     var defaultModifier = modifier
         .clip(GenericShape { size, layoutDirection ->
-            val left = with(density) { left.toPx() }
+            val left = with(density) { left().toPx() }
             val top = with(density) { top.toPx() }
             val width = with(density) { width.toPx() }
             val height = with(density) { height.toPx() }
@@ -114,113 +114,107 @@ fun BackdropBlurScreen(rate: String, date: String, hasLike: Boolean, handlerEven
     Box(modifier = Modifier.fillMaxWidth()) {
 
         // oсновная картинка
-        var imageSize by remember { mutableStateOf(IntSize.Zero) }
+        val imageWidthPx = remember { mutableIntStateOf(0) }
 
-        val widthInDpImage: Dp by remember(density, imageSize) {
+        val widthInDpImage by remember(density) {
             derivedStateOf {
-                with(density) {
-                    imageSize.width.toDp()
-                }
+                with(density) { imageWidthPx.intValue.toDp() }
             }
         }
 
         AsyncImage(
             model = image,
             contentDescription = "",
-            modifier = Modifier.cardModifier().onSizeChanged({
-                    size -> imageSize = size }),
+            modifier = Modifier.cardModifier().onSizeChanged({ newSize ->
+                if (imageWidthPx.intValue != newSize.width) {
+                    imageWidthPx.intValue = newSize.width
+                }}),
             contentScale = ContentScale.FillWidth
         )
 
         // секция рейтинга
-        val widthInPxRate = with(density) { 100.dp.roundToPx() }
-        val heightInPxRate = with(density) { 22.dp.roundToPx()}
+        var widthRate = 0.dp
+        SubcomposeLayout { constraints ->
+            val placeableRate = subcompose("measure_rate") {
+                BoxRate(rate)
+            }.first().measure(constraints)
 
-        val sizeInPxRate = IntSize(widthInPxRate, heightInPxRate)
+            widthRate = with(density) { placeableRate.width.toDp() + 6.dp }
 
-        var childSizeRate by remember{ mutableStateOf(sizeInPxRate) }
-
-
-        val widthInDpRate: Dp by remember(density, childSizeRate) {
-            derivedStateOf {
-                with(density) {
-                    childSizeRate.width.toDp() + 6.dp
+            val mainPlaceable = subcompose("rate_content") {
+                GlassyBox(
+                    modifier = Modifier.cardModifier(),
+                    left = {8.dp},
+                    top = 80.dp,
+                    width = widthRate,
+                    height = 22.dp + 6.dp,
+                    cornerRadius = 16.dp,
+                    image = image
+                ) {
+                    Box(
+                        modifier = Modifier
+                            //left top
+                            .offset(x = 8.dp, y = 80.dp)
+                            .width(widthRate)
+                            .height(22.dp + 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        BoxRate(rate)
+                    }
                 }
+            }.first().measure(constraints)
+
+            layout(mainPlaceable.width, mainPlaceable.height) {
+                mainPlaceable.placeRelative(0, 0)
             }
         }
-
-        GlassyBox(
-            modifier = Modifier.cardModifier(),
-            left = 8.dp,
-            top = 80.dp,
-            width = widthInDpRate,
-            height = 22.dp + 6.dp,
-            cornerRadius = 16.dp,
-            image = image
-        ) {
-
-            Box(
-                modifier = Modifier
-                    //left top
-                    .offset(x = 8.dp, y = 80.dp)
-                    .width(widthInDpRate)
-                    .height(22.dp + 6.dp),
-                contentAlignment = Alignment.Center
-            ) {
-
-                BoxRate(rate,onSizeChanged = { size ->
-                    childSizeRate = size
-                })
-            }
-        }
-
 
         // секция даты
-        val widthInPxDate = with(density) { 100.dp.roundToPx() }
-        val heightInPxDate = with(density) { 22.dp.roundToPx()}
-
-        val sizeInPxDate = IntSize(widthInPxDate, heightInPxDate)
-
-        var childSizeDate by remember (date){ mutableStateOf(sizeInPxDate) }
+        SubcomposeLayout { constraints ->
+            val placeableDate = subcompose("measure_date") {
+                BoxStartDate(date)
+            }.first().measure(constraints)
 
 
-        val widthInDpDate: Dp by remember(density, childSizeDate) {
-            derivedStateOf {
-                with(density) {
-                    childSizeDate.width.toDp() + 6.dp
+            val width = with(density) { placeableDate.width.toDp() + 6.dp }
+
+            val mainPlaceable = subcompose("date_content") {
+                GlassyBox(
+                    modifier = Modifier.cardModifier(),
+                    left = {8.dp + widthRate + 8.dp},
+                    top = 80.dp,
+                    width = width,
+                    height = 22.dp + 6.dp,
+                    cornerRadius = 16.dp,
+                    image = image,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            //left top
+                            .offset {
+                                IntOffset(
+                                    x = ( 8.dp + widthRate + 8.dp).roundToPx(),
+                                    y = 80.dp.roundToPx()
+                                )
+                            }
+                            .width(width)
+                            .height(22.dp + 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        BoxStartDate(date)
+                    }
                 }
-            }
-        }
+            }.first().measure(constraints)
 
-        GlassyBox(
-            modifier = Modifier.cardModifier(),
-            left = 8.dp + widthInDpRate + 8.dp,
-            top = 80.dp,
-            width = widthInDpDate,
-            height = 22.dp + 6.dp,
-            cornerRadius = 16.dp,
-            image = image,
-        ) {
-
-            Box(
-                modifier = Modifier
-                    //left top
-                    .offset(x = 8.dp + widthInDpRate + 8.dp, y = 80.dp) // ← ТАКИЕ ЖЕ отступы!
-                    .width(widthInDpDate)
-                    .height(22.dp + 6.dp),
-                contentAlignment = Alignment.Center
-            ) {
-
-                BoxStartDate(date,onSizeChanged = { size ->
-                    childSizeDate = size
-                })
+            layout(mainPlaceable.width, mainPlaceable.height) {
+                mainPlaceable.placeRelative(0, 0)
             }
         }
 
         // секция закладки
         GlassyBox(
             modifier = Modifier.cardModifier(),
-            left = widthInDpImage - 28.dp - 16.dp,
+            left = {widthInDpImage - 28.dp - 16.dp},
             top = 8.dp,
             width = 28.dp + 6.dp,
             height = 28.dp + 6.dp,
@@ -233,7 +227,12 @@ fun BackdropBlurScreen(rate: String, date: String, hasLike: Boolean, handlerEven
             Box(
                 modifier = Modifier
                     //left top
-                    .offset(x = widthInDpImage - 28.dp - 16.dp, y = 8.dp)
+                    .offset {
+                        IntOffset(
+                            x = (widthInDpImage  - 28.dp - 16.dp).roundToPx(),
+                            y = 8.dp.roundToPx()
+                        )
+                    }
                     .width(28.dp + 6.dp)
                     .height(28.dp + 6.dp),
                 contentAlignment = Alignment.Center
@@ -243,8 +242,6 @@ fun BackdropBlurScreen(rate: String, date: String, hasLike: Boolean, handlerEven
         }
     }
 }
-
-
 
 @Composable
 private fun BoxLike(hasLike: Boolean) {
@@ -257,35 +254,30 @@ private fun BoxLike(hasLike: Boolean) {
     )
 }
 
-
 @Composable
-private fun BoxRate(rate: String,onSizeChanged: (IntSize) -> Unit = {}) {
-    Row(modifier = Modifier.onSizeChanged(onSizeChanged),
-        horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+private fun BoxRate(rate: String) {
+    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         Icon(
             imageVector = Icons.Filled.Star,
-            contentDescription = "",
-            modifier = Modifier
-                .size(16.dp),
-            tint = colorResource(R.color.green)
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = Color.Green
         )
-
         Text(
-            rate,
+            text = rate,
             style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(top= 4.dp, bottom = 4.dp, start = 2.dp, end = 6.dp)
+            modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, start = 2.dp, end = 6.dp)
         )
     }
 }
 
 @Composable
-private fun BoxStartDate(date: String,onSizeChanged: (IntSize) -> Unit = {}) {
-    Box(modifier = Modifier.onSizeChanged(onSizeChanged)) {
-        Text(
-            date,
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, start = 6.dp, end = 6.dp),
-            maxLines = 1
-        )
-    }
+private fun BoxStartDate(date: String) {
+    Text(
+        date,
+        style = MaterialTheme.typography.labelSmall,
+        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, start = 6.dp, end = 6.dp),
+        maxLines = 1
+    )
 }
+

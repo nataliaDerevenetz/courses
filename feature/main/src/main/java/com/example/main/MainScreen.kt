@@ -198,7 +198,6 @@ private fun CardCourse(handlerEvent: () -> Job, course: Course) {
         Row(horizontalArrangement = Arrangement.SpaceBetween){
             Column(Modifier.padding(start =  10.dp, top = 20.dp, end = 10.dp, bottom = 10.dp).weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)){
-
                 BackdropBlurScreen(rate = course.rate,date = course.startDate.toRussianFormat(), hasLike = course.hasLike, handlerEvent,coverImages[randomIndex])
                 Text( course.title,  style = MaterialTheme.typography.titleMedium,fontWeight = FontWeight.Bold)
                 Text( course.text, style = MaterialTheme.typography.bodySmall,maxLines = 2,
