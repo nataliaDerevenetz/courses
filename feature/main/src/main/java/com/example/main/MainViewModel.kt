@@ -79,7 +79,7 @@ class MainViewModel @Inject constructor(
         _stateLoadCourse.update { it.copy(contentState = LoadCourseState.Idle) }
         getCoursesAllUseCase().collectLatest { resources ->
             when (resources) {
-                is UIResources.Error -> withContext(Dispatchers.Main){
+                is UIResources.Error ->
                     _stateLoadCourse.update {
                         it.copy(
                             contentState = LoadCourseState.Error(
@@ -87,15 +87,14 @@ class MainViewModel @Inject constructor(
                             )
                         )
                     }
-                }
 
-                is UIResources.Loading -> withContext(Dispatchers.Main){
+                is UIResources.Loading ->
                     _stateLoadCourse.update { it.copy(contentState = LoadCourseState.Loading) }
-                }
 
-                is UIResources.Success -> withContext(Dispatchers.Main){
+
+                is UIResources.Success ->
                     _stateLoadCourse.update { it.copy(contentState = LoadCourseState.Success(courses = resources.data)) }
-                }
+
             }
         }
     }

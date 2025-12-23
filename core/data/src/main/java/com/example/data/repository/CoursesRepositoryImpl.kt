@@ -1,5 +1,6 @@
 package com.example.data.repository
 
+import com.example.data.DataProvider
 import com.example.data.local.DBStorage
 import com.example.data.models.toCourse
 import com.example.domain.models.Course
@@ -9,6 +10,7 @@ import com.example.utils.Constant
 import com.example.utils.UIResources
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,6 +46,8 @@ class CoursesRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             emit(UIResources.Error(e.message.toString()))
+            delay(1000)
+            emit(UIResources.Success(DataProvider.localCourses))
         }
     }
 
