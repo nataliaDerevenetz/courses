@@ -1,4 +1,4 @@
-package com.example.utils.ui
+package com.example.design
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.utils.R
 import kotlinx.coroutines.Job
 
 @Composable
